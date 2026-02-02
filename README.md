@@ -1,23 +1,18 @@
 # PUBG KD Tracker
 
-A console-based Python application to track and analyze PUBG Kill/Death ratios.
+A console-based Python application for tracking and analyzing Kill/Death (KD) ratios in PUBG.
 
 ## Features
 - Add player KD records
 - Automatic KD calculation
-- View all saved records
+- Persistent data storage with JSON
 - Average KD calculation
-- Best KD detection
-- Input validation
-- Clean and readable code
+- Best player detection
 
 ## Technologies
 - Python 3
+- JSON
 
 ## How to Run
-1. Clone the repository
-2. Navigate to the project folder
-3. Run the command:
-
 ```bash
 python main.py
