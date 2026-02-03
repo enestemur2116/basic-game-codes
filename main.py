@@ -1,108 +1,115 @@
-import json
-import os
+import datetime
+
+records = []
 
 
-class KDTracker:
-    def __init__(self, filename="data.json"):
-        self.filename = filename
-        self.players = []
-        self.load_data()
+def calculate_kd(kills, deaths):
+    if deaths == 0:
+        return float("inf")
+    return round(kills / deaths, 2)
 
-    def load_data(self):
-        if os.path.exists(self.filename):
-            with open(self.filename, "r") as file:
-                self.players = json.load(file)
-        else:
-            self.players = []
 
-    def save_data(self):
-        with open(self.filename, "w") as file:
-            json.dump(self.players, file, indent=4)
+def get_int_input(text):
+    while True:
+        try:
+            return int(input(text))
+        except:
+            print("Please enter a valid number.")
 
-    def add_player(self, name, kills, deaths):
-        kd = kills / deaths if deaths != 0 else kills
-        player = {
-            "player_name": name,
-            "kills": kills,
-            "deaths": deaths,
-            "kd": round(kd, 2)
-        }
-        self.players.append(player)
-        self.save_data()
-        print("Player added successfully.")
 
-    def show_players(self):
-        if not self.players:
-            print("No data found.")
-            return
+def create_record():
+    player = input("Player name: ")
+    kills = get_int_input("Kills: ")
+    deaths = get_int_input("Deaths: ")
 
-        for index, player in enumerate(self.players, start=1):
-            print(
-                f"{index}. {player['player_name']} | "
-                f"Kills: {player['kills']} | "
-                f"Deaths: {player['deaths']} | "
-                f"KD: {player['kd']}"
-            )
+    kd = calculate_kd(kills, deaths)
 
-    def show_average_kd(self):
-        if not self.players:
-            print("No data available.")
-            return
+    record = {
+        "player": player,
+        "kills": kills,
+        "deaths": deaths,
+        "kd": kd,
+        "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    }
 
-        total_kd = sum(player["kd"] for player in self.players)
-        average_kd = total_kd / len(self.players)
-        print(f"Average KD: {round(average_kd, 2)}")
+    records.append(record)
 
-    def show_best_player(self):
-        if not self.players:
-            print("No data available.")
-            return
+    print("KD:", kd)
 
-        best_player = max(self.players, key=lambda p: p["kd"])
+
+def show_records():
+    if not records:
+        print("No records found.")
+        return
+
+    print("\n--- RECORDS ---")
+    for r in records:
         print(
-            f"Best Player: {best_player['player_name']} "
-            f"with KD {best_player['kd']}"
+            f"{r['time']} | "
+            f"Player:{r['player']} | "
+            f"Kills:{r['kills']} | "
+            f"Deaths:{r['deaths']} | "
+            f"KD:{r['kd']}"
+        )
+
+
+def average_kd():
+    valid_kd = [r["kd"] for r in records if r["kd"] != float("inf")]
+
+    if not valid_kd:
+        return "Infinite"
+
+    return round(sum(valid_kd) / len(valid_kd), 2)
+
+
+def best_kd():
+    if not records:
+        return None
+    return max(records, key=lambda r: r["kd"])
+
+
+def show_statistics():
+    if not records:
+        print("No data to analyze.")
+        return
+
+    avg = average_kd()
+    best = best_kd()
+
+    print("\n--- STATISTICS ---")
+    print("Average KD:", avg)
+
+    if best:
+        print(
+            "Best KD -> "
+            f"Player:{best['player']} KD:{best['kd']}"
         )
 
 
 def show_menu():
-    print("\n--- PUBG KD Tracker ---")
-    print("1. Add player")
-    print("2. Show all players")
-    print("3. Show average KD")
-    print("4. Show best player")
-    print("5. Exit")
+    print("\n--- PUBG KD TRACKER ---")
+    print("1 - Add new record")
+    print("2 - Show all records")
+    print("3 - Show statistics")
+    print("0 - Exit")
 
 
-def main():
-    tracker = KDTracker()
+while True:
+    show_menu()
+    choice = input("Choice: ")
 
-    while True:
-        show_menu()
-        choice = input("Select an option: ")
+    if choice == "1":
+        create_record()
 
-        if choice == "1":
-            name = input("Player name: ")
-            kills = int(input("Kills: "))
-            deaths = int(input("Deaths: "))
-            tracker.add_player(name, kills, deaths)
+    elif choice == "2":
+        show_records()
 
-        elif choice == "2":
-            tracker.show_players()
+    elif choice == "3":
+        show_statistics()
 
-        elif choice == "3":
-            tracker.show_average_kd()
+    elif choice == "0":
+        print("Goodbye.")
+        break
 
-        elif choice == "4":
-            tracker.show_best_player()
-
-        elif choice == "5":
-            print("Goodbye!")
-            break
-
-        else:
-            print("Invalid option.")
-
-
-if __name__ == "__main__":
-    main()
+    else:
+        print("Invalid choice.")
